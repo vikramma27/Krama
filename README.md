@@ -24,10 +24,11 @@ A modern, privacy-focused Android messaging application with end-to-end encrypti
 
 Before building the app, you need to set up:
 
-1. **Firebase Project**
-   - Create a project at [Firebase Console](https://console.firebase.google.com/)
-   - Add an Android app with package name: `com.aistudio.krama.messenger`
+1. **Firebase Project** (Already configured: `karmaapp-2bab2`)
    - Download `google-services.json` and place it in `app/` directory
+   - See [FIREBASE_SETUP.md](./FIREBASE_SETUP.md) for complete setup instructions
+   - Enable authentication methods: Email/Password, Google Sign-in, Phone
+   - Configure Firestore database with security rules
 
 2. **Matrix Server** (Optional but recommended)
    - Use a public Matrix server like [matrix.org](https://matrix.org/)
@@ -61,20 +62,41 @@ Releases are created automatically when you push version tags.
 
 **Note**: The CI build creates a placeholder `google-services.json` if not present, so builds succeed without the actual Firebase config. For production deployments, add `google-services.json` to GitHub Secrets.
 
+## Firebase Configuration
+
+### Quick Setup
+
+1. **Download google-services.json**
+   - Firebase Console → Project Settings → Your apps → Download google-services.json
+   - Place in: `app/google-services.json`
+
+2. **Enable Authentication**
+   - Authentication → Sign-in method
+   - Enable: Email/Password, Google, Phone
+
+3. **Create Firestore Database**
+   - Firestore → Create database (Production mode)
+   - Copy rules from `firestore.rules`
+   - Publish rules
+
+4. **Configure Storage (Optional)**
+   - Storage → Get started
+   - Copy rules from `storage.rules`
+   - Publish rules
+
+For detailed instructions, see [FIREBASE_SETUP.md](./FIREBASE_SETUP.md).
+
+### Firebase Services Used
+
+| Service | Purpose | Configuration |
+|---------|---------|---------------|
+| **Authentication** | User identity | Email/Password, Google, Phone |
+| **Firestore** | User profiles, messages | Rules in `firestore.rules` |
+| **Realtime Database** | Presence, typing | Included in google-services.json |
+| **Cloud Storage** | Media files | Rules in `storage.rules` |
+| **Cloud Messaging** | Push notifications | Auto-configured |
+
 ## Configuration
-
-### Firebase Setup
-
-1. Enable these Firebase services in your project:
-   - Authentication (Email/Password, Phone)
-   - Cloud Firestore
-   - Cloud Messaging
-   - Analytics
-
-2. Download configuration:
-   ```bash
-   # Place as app/google-services.json
-   ```
 
 ### Environment Variables
 
