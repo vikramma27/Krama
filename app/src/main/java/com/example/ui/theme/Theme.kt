@@ -16,50 +16,57 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
+/**
+ * Krama Modern Design System Theme Implementation
+ * Provides a distinctive, premium theme that sets Krama apart from other chat apps
+ */
+
 private val DarkColorScheme = darkColorScheme(
-    primary = FlowPrimary,
-    onPrimary = Color.White,
-    primaryContainer = FlowPrimaryContainer,
-    onPrimaryContainer = Color.White,
-    secondary = FlowAccentTeal,
-    onSecondary = Color.Black,
-    secondaryContainer = DarkPlumBorder,
-    onSecondaryContainer = TextPrimaryDark,
-    tertiary = FlowEncryptedGreen,
+    primary = QuantumTeal,
+    onPrimary = TextOnPrimary,
+    primaryContainer = QuantumTeal.copy(alpha = 0.1f),
+    onPrimaryContainer = TextOnPrimary,
+    secondary = DeepPlasmaPurple,
+    onSecondary = TextOnPrimary,
+    secondaryContainer = DeepPlasmaPurple.copy(alpha = 0.1f),
+    onSecondaryContainer = TextOnPrimary,
+    tertiary = StellarCoral,
+    onTertiary = TextOnPrimary,
     background = NearBlackPlum,
-    onBackground = TextPrimaryDark,
-    surface = DarkPlumCard,
-    onSurface = TextPrimaryDark,
-    surfaceVariant = DarkPlumBorder,
-    onSurfaceVariant = TextSecondaryDark,
-    outline = DarkPlumBorder,
-    error = FlowCoralWarning
+    onBackground = TextOnBackground,
+    surface = SurfaceDark,
+    onSurface = TextOnBackground,
+    surfaceVariant = SurfaceDark.copy(alpha = 0.8f),
+    onSurfaceVariant = TextSecondary,
+    outline = Divider,
+    error = VolcanicRed
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = FlowPrimary,
-    onPrimary = Color.White,
-    primaryContainer = SentBubbleLight,
-    onPrimaryContainer = TextPrimaryLight,
-    secondary = FlowPrimary,
-    onSecondary = Color.White,
-    secondaryContainer = LightBorder,
-    onSecondaryContainer = TextPrimaryLight,
-    tertiary = FlowEncryptedGreen,
-    background = WarmOffWhite,
-    onBackground = TextPrimaryLight,
-    surface = LightCardSurface,
-    onSurface = TextPrimaryLight,
-    surfaceVariant = LightBorder,
-    onSurfaceVariant = TextSecondaryLight,
-    outline = LightBorder,
-    error = FlowCoralWarning
+    primary = QuantumTeal,
+    onPrimary = TextOnPrimary,
+    primaryContainer = QuantumTeal.copy(alpha = 0.1f),
+    onPrimaryContainer = TextOnPrimary,
+    secondary = DeepPlasmaPurple,
+    onSecondary = TextOnPrimary,
+    secondaryContainer = DeepPlasmaPurple.copy(alpha = 0.1f),
+    onSecondaryContainer = TextOnPrimary,
+    tertiary = StellarCoral,
+    onTertiary = TextOnPrimary,
+    background = WhiteOak,
+    onBackground = TextOnBackground,
+    surface = SurfaceLight,
+    onSurface = TextOnBackground,
+    surfaceVariant = SurfaceLight.copy(alpha = 0.9f),
+    onSurfaceVariant = TextSecondary,
+    outline = Divider,
+    error = VolcanicRed
 )
 
 @Composable
 fun KramaTheme(
-    darkTheme: Boolean = true, // Default to dark mode
-    dynamicColor: Boolean = false, // Set to false to preserve Krama's custom theme identity and high-contrast dark theme
+    darkTheme: Boolean = true, // Default to dark mode for premium feel
+    dynamicColor: Boolean = false, // Set to false to preserve Krama's custom theme identity
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
@@ -93,6 +100,3 @@ fun KramaTheme(
         content = content
     )
 }
-
-
-

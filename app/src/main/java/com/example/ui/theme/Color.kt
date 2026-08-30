@@ -2,37 +2,26 @@ package com.example.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Ember Indigo Palette & Flow-Inspired Design Tokens
-val DeepIndigo = Color(0xFF3B2E7E)
-val IndigoLight = Color(0xFF5846B2)
-val WarmCoral = Color(0xFFFF6B57)
-val SoftTeal = Color(0xFF2FBF9C)
-val AmberGold = Color(0xFFFFB300)
+/**
+ * Krama Modern Design System - Color Palette
+ * Inspired by premium, distinctive aesthetics that set Krama apart from other chat apps
+ */
+val QuantumTeal = Color(0xFF00BFA6)          // Primary: Communication & Clarity
+val DeepPlasmaPurple = Color(0xFF6A1B9A)     // Secondary: Energy & Innovation  
+val StellarCoral = Color(0xFFFF4081)         // Accent: Action & Engagement
+val NearBlackPlum = Color(0xFF121212)        // Background: Primary Dark
+val WhiteOak = Color(0xFFF5F5F5)             // Background: Secondary Light
+val GroveGreen = Color(0xFF43A047)           // Success: Positive Actions
+val VolcanicRed = Color(0xFFE53935)          // Error: Error States
+val GoldenAmber = Color(0xFFFB8C00)          // Warning: Alerts & Warnings
+val SkyBlue = Color(0xFF2196F3)              // Info: Informational States
 
-// Flow Design System Core Tokens
-val FlowPrimary = Color(0xFF635BFF)          // Vibrant Flow Electric Indigo
-val FlowPrimaryContainer = Color(0xFF211A4F) // Deep Indigo Container
-val FlowAccentTeal = Color(0xFF00E6C3)       // Cyber Teal Encrypted Accent
-val FlowEncryptedGreen = Color(0xFF10B981)   // E2EE Verified Green
-val FlowCoralWarning = Color(0xFFFF5252)     // Security Alert Coral
-
-val NearBlackPlum = Color(0xFF110D1D)
-val DarkPlumCard = Color(0xFF1D172E)
-val DarkPlumBorder = Color(0xFF2D2344)
-
-val WarmOffWhite = Color(0xFFF8F7FA)
-val LightCardSurface = Color(0xFFFFFFFF)
-val LightBorder = Color(0xFFE5E2EC)
-
-val SentBubbleDark = Color(0xFF2F2459)
-val ReceivedBubbleDark = Color(0xFF221A36)
-val SentBubbleLight = Color(0xFFEAE5F8)
-val ReceivedBubbleLight = Color(0xFFEFECE5)
-
-val TextPrimaryDark = Color(0xFFF7F5FA)
-val TextSecondaryDark = Color(0xFFAAA1C4)
-
-val TextPrimaryLight = Color(0xFF1A1429)
-val TextSecondaryLight = Color(0xFF6B6280)
-
-
+// Neutral shades for text and surfaces
+val TextOnPrimary = Color.White              // Text on primary colors
+val TextOnSecondary = Color(0xFF212121)      // Text on secondary backgrounds
+val TextOnBackground = Color.White           // Text on dark backgrounds
+val TextSecondary = Color(0xFFB0B0B0)        // Secondary text
+val TextHint = Color(0xFF8A8A8A)             // Hint/text placeholder
+val Divider = Color(0xFF2A2A2A)              // Divider lines
+val SurfaceDark = Color(0xFF1E1E1E)          // Dark surface variant
+val SurfaceLight = Color(0xFFFFFFFF)         // Light surface variant

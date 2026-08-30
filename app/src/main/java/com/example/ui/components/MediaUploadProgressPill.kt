@@ -5,6 +5,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -47,13 +48,16 @@ import com.example.media.MediaUploadManager
 import com.example.media.MediaUploadTask
 import com.example.media.UploadStatus
 import com.example.ui.theme.DarkPlumCard
+import com.example.ui.theme.NearBlackPlum
+import com.example.ui.theme.QuantumTeal
 import com.example.ui.theme.SoftTeal
-import com.example.ui.theme.WarmCoral
+import com.example.ui.theme.StellarCoral
+import com.example.ui.theme.WhiteOak
 
 /**
- * Non-intrusive floating progress overlay displaying real-time feedback for
- * media uploads (status stories, chat attachments, voice notes) with full
- * edge case support (network dropout, cancellation, retry).
+ * Premium media upload progress indicator with sophisticated animations and
+ * micro-interactions. Provides clear, accessible feedback for media uploads
+ * with elegant design that stands out from standard implementations.
  */
 @Composable
 fun MediaUploadProgressPill(
@@ -66,24 +70,24 @@ fun MediaUploadProgressPill(
 
     AnimatedVisibility(
         visible = activeTask != null,
-        enter = fadeIn() + slideInVertically(initialOffsetY = { -it }),
-        exit = fadeOut() + slideOutVertically(targetOffsetY = { -it }),
+        enter = fadeIn(animationSpec = tween(300)) + slideInVertically(initialOffsetY = { -it }, animationSpec = tween(250)),
+        exit = fadeOut(animationSpec = tween(250)) + slideOutVertically(targetOffsetY = { -it }, animationSpec = tween(250)),
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 24.dp, vertical = 16.dp) // Increased padding for premium feel
             .testTag("media_upload_progress_pill")
     ) {
         activeTask?.let { task ->
             Surface(
-                shape = RoundedCornerShape(16.dp),
-                color = DarkPlumCard.copy(alpha = 0.96f),
-                shadowElevation = 8.dp,
+                shape = RoundedCornerShape(20.dp),
+                color = DarkPlumCard.copy(alpha = 0.98f),
+                shadowElevation = 12.dp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, WarmCoral.copy(alpha = 0.4f), RoundedCornerShape(16.dp))
+                    .border(1.5.dp, QuantumTeal.copy(alpha = 0.3f), RoundedCornerShape(20.dp))
             ) {
                 Column(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -96,13 +100,13 @@ fun MediaUploadProgressPill(
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(36.dp)
+                                    .size(44.dp) // Larger, more touch-friendly icon container
                                     .clip(CircleShape)
                                     .background(
                                         when (task.status) {
-                                            UploadStatus.COMPLETED -> SoftTeal.copy(alpha = 0.2f)
-                                            UploadStatus.PAUSED_NO_NETWORK, UploadStatus.FAILED -> Color(0xFF38232A)
-                                            else -> WarmCoral.copy(alpha = 0.2f)
+                                            UploadStatus.COMPLETED -> SoftTeal.copy(alpha = 0.15f)
+                                            UploadStatus.PAUSED_NO_NETWORK, UploadStatus.FAILED -> StellarCoral.copy(alpha = 0.15f)
+                                            else -> QuantumTeal.copy(alpha = 0.15f)
                                         }
                                     ),
                                 contentAlignment = Alignment.Center
@@ -116,27 +120,35 @@ fun MediaUploadProgressPill(
                                     contentDescription = null,
                                     tint = when (task.status) {
                                         UploadStatus.COMPLETED -> SoftTeal
-                                        UploadStatus.PAUSED_NO_NETWORK, UploadStatus.FAILED -> WarmCoral
-                                        else -> WarmCoral
+                                        UploadStatus.PAUSED_NO_NETWORK, UploadStatus.FAILED -> StellarCoral
+                                        else -> QuantumTeal
                                     },
-                                    modifier = Modifier.size(20.dp)
+                                    modifier = Modifier.size(24.dp)
                                 )
                             }
 
-                            Spacer(modifier = Modifier.width(10.dp))
+                            Spacer(modifier = Modifier.width(16.dp))
 
                             Column {
+                                // File name with premium typography
                                 Text(
                                     text = task.fileName,
-                                    color = Color.White,
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    color = NearBlackPlum,
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.SemiBold,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
 
+                                Spacer(modifier = Modifier.height(4.dp))
+
+                                // Status detail with clear, readable text
                                 val statusDetail = when (task.status) {
-                                    UploadStatus.UPLOADING -> "${(task.progressPercent * 100).toInt()}% • ${String.format("%.1f", task.speedKbps / 1024f)} MB/s"
+                                    UploadStatus.UPLOADING -> {
+                                        val progressPercent = (task.progressPercent * 100).toInt()
+                                        val speedMbps = task.speedKbps / 1024f
+                                        "$progressPercent% • ${String.format("%.1f", speedMbps)} MB/s"
+                                    }
                                     UploadStatus.PAUSED_NO_NETWORK -> "Offline • Waiting to resume"
                                     UploadStatus.COMPLETED -> "Upload Complete"
                                     UploadStatus.FAILED -> task.errorMessage ?: "Upload failed"
@@ -148,56 +160,97 @@ fun MediaUploadProgressPill(
                                     text = statusDetail,
                                     color = when (task.status) {
                                         UploadStatus.COMPLETED -> SoftTeal
-                                        UploadStatus.PAUSED_NO_NETWORK, UploadStatus.FAILED -> WarmCoral
-                                        else -> Color.LightGray
+                                        UploadStatus.PAUSED_NO_NETWORK, UploadStatus.FAILED -> StellarCoral
+                                        else -> NearBlackPlum.copy(alpha = 0.7f)
                                     },
-                                    fontSize = 11.sp
+                                    fontSize = 13.sp
                                 )
                             }
                         }
 
                         Row(verticalAlignment = Alignment.CenterVertically) {
+                            // Retry button with modern styling
                             if (task.status == UploadStatus.FAILED || task.status == UploadStatus.PAUSED_NO_NETWORK) {
                                 IconButton(
                                     onClick = { MediaUploadManager.instance.retryUpload(context, task.taskId) },
-                                    modifier = Modifier.size(28.dp)
+                                    modifier = Modifier.size(48.dp), // Larger touch target
+                                    containerColor = QuantumTeal.copy(alpha = 0.1f)
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Refresh,
                                         contentDescription = "Retry Upload",
-                                        tint = SoftTeal,
-                                        modifier = Modifier.size(18.dp)
+                                        tint = QuantumTeal,
+                                        modifier = Modifier.size(24.dp)
                                     )
                                 }
                             }
 
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            // Cancel button with modern styling
                             if (task.status == UploadStatus.UPLOADING || task.status == UploadStatus.PAUSED_NO_NETWORK) {
                                 IconButton(
                                     onClick = { MediaUploadManager.instance.cancelUpload(context, task.taskId) },
-                                    modifier = Modifier.size(28.dp)
+                                    modifier = Modifier.size(48.dp), // Larger touch target
+                                    containerColor = StellarCoral.copy(alpha = 0.1f)
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Cancel,
                                         contentDescription = "Cancel Upload",
-                                        tint = Color.Gray,
-                                        modifier = Modifier.size(18.dp)
+                                        tint = StellarCoral,
+                                        modifier = Modifier.size(24.dp)
                                     )
                                 }
                             }
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Enhanced progress bar with modern styling
                     if (task.status == UploadStatus.UPLOADING || task.status == UploadStatus.PAUSED_NO_NETWORK) {
-                        Spacer(modifier = Modifier.height(6.dp))
-                        LinearProgressIndicator(
-                            progress = { task.progressPercent },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(3.dp)
-                                .clip(RoundedCornerShape(2.dp)),
-                            color = if (task.status == UploadStatus.PAUSED_NO_NETWORK) Color.Gray else WarmCoral,
-                            trackColor = Color.DarkGray
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Progress percentage text
+                            Text(
+                                text = "${(task.progressPercent * 100).toInt()}%",
+                                color = QuantumTeal,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.width(40.dp)
+                            )
+
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            // Progress bar with gradient effect
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(6.dp) // Thicker progress bar
+                                    .background(
+                                        when (task.status) {
+                                            UploadStatus.PAUSED_NO_NETWORK -> Color.Gray.copy(alpha = 0.3f)
+                                            else -> QuantumTeal
+                                        }
+                                    )
+                                    .clip(RoundedCornerShape(3.dp))
+                                    .border(0.5.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(3.dp))
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .width(task.progressPercent)
+                                        .height(6.dp)
+                                        .background(
+                                            when (task.status) {
+                                                UploadStatus.PAUSED_NO_NETWORK -> Color.Gray
+                                                else -> QuantumTeal
+                                            }
+                                        )
+                                        .clip(RoundedCornerShape(3.dp))
+                                )
+                            }
+                        }
                     }
                 }
             }
