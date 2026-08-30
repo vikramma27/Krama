@@ -1,0 +1,21 @@
+# Baseline Profile Rules for Krama Chat & Call Screens
+HSPLcom/example/MainActivity;-><init>()V
+HSPLcom/example/MainActivity;->onCreate(Landroid/os/Bundle;)V
+HSPLcom/example/KramaApplication;-><init>()V
+HSPLcom/example/KramaApplication;->onCreate()V
+HSPLcom/example/ui/screens/ChatsScreenKt;->ChatsScreen
+HSPLcom/example/ui/screens/ChatThreadScreenKt;->ChatThreadScreen
+HSPLcom/example/ui/screens/CallsScreenKt;->CallsScreen
+HSPLcom/example/ui/screens/ActiveCallScreenKt;->ActiveCallScreen
+HSPLcom/example/ui/screens/OnboardingScreenKt;->OnboardingScreen
+HSPLcom/example/ui/viewmodel/MainViewModel;-><init>
+HSPLcom/example/data/local/KramaDatabase;-><init>()V
+HSPLcom/example/service/WebRtcCallService;-><init>()V
+Lcom/example/ui/screens/ChatsScreenKt;
+Lcom/example/ui/screens/ChatThreadScreenKt;
+Lcom/example/ui/screens/CallsScreenKt;
+Lcom/example/ui/screens/ActiveCallScreenKt;
+Lcom/example/ui/viewmodel/MainViewModel;
+Lcom/example/domain/model/ChatMessage;
+Lcom/example/domain/model/ChatThread;
+Lcom/example/domain/model/CallRecord;

@@ -1,0 +1,6 @@
+{
+  "name": "Krama",
+  "description": "End-to-End Encrypted Native Android Messenger built on modern E2E protocols, Flow design system, and Opus/WebRTC calling.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

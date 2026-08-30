@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Bold geometric K + circuit nodes -->
+    <path
+        android:pathData="M32,22 L44,22 L44,47 L66,22 L80,22 L52,52 L80,86 L66,86 L44,60 L44,86 L32,86 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="32"
+                android:startY="22"
+                android:endX="80"
+                android:endY="86">
+                <item android:offset="0.0" android:color="#FFF8E1" />
+                <item android:offset="0.35" android:color="#FFE082" />
+                <item android:offset="1.0" android:color="#FFB300" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Bottom-left circuit node -->
+    <path
+        android:pathData="M38,86 L38,94"
+        android:strokeWidth="4"
+        android:strokeColor="#FFD54F"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M38,94m-5,0a5,5 0 1,0 10,0a5,5 0 1,0 -10,0"
+        android:fillColor="#FFCA28" />
+
+    <!-- Right upper arm circuit node -->
+    <path
+        android:pathData="M68,30 L78,30"
+        android:strokeWidth="3.2"
+        android:strokeColor="#FFD54F"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M78,30m-4.8,0a4.8,4.8 0 1,0 9.6,0a4.8,4.8 0 1,0 -9.6,0"
+        android:fillColor="#FFCA28" />
+
+    <!-- Center accent node -->
+    <path
+        android:pathData="M52,52m-3.5,0a3.5,3.5 0 1,0 7,0a3.5,3.5 0 1,0 -7,0"
+        android:fillColor="#FFECB3" />
+
+</vector>
+
