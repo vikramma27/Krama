@@ -1,47 +1,55 @@
 rules_version = '2';
+
 service firebase.storage {
   match /b/{bucket}/o {
-    
+
+    // DEPRECATED: Firebase Storage is no longer used for media uploads
+    // Media is now stored via:
+    //   - Matrix media repository (primary) - E2E encrypted
+    //   - PixEdge via Telegram (fallback) - for files >10MB
+    //
+    // This rules file is kept minimal for backwards compatibility
+    // and only supports avatar/thumbnail storage if needed.
+
     function isAuthenticated() {
       return request.auth != null;
     }
-    
+
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
-    
+
     function isValidFileSize() {
-      return request.resource.size < 100 * 1024 * 1024; // 100MB limit
+      return request.resource.size < 5 * 1024 * 1024; // 5MB limit (reduced from 100MB)
     }
-    
-    function isImageOrVideo() {
-      return request.resource.contentType.matches('image/.*') ||
-             request.resource.contentType.matches('video/.*');
+
+    function isAvatarImage() {
+      return request.resource.contentType.matches('image/.*') &&
+        request.resource.name.matches('.*\\.(jpg|jpeg|png|gif|webp)');
     }
-    
-    // User avatars
+
+    // User avatars only (minimal storage for backwards compatibility)
+    // All other media goes through Matrix or PixEdge
     match /avatars/{userId}/{fileName} {
       allow read: if isAuthenticated();
-      allow write: if isOwner(userId) && 
-        isValidFileSize() && 
-        fileName.matches('.*\\.(jpg|jpeg|png|gif|webp)');
+      allow write: if isOwner(userId) &&
+        isValidFileSize() &&
+        isAvatarImage();
     }
-    
-    // Conversation media files
+
+    // Deprecated paths - writes are denied
     match /conversations/{conversationId}/{fileName} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && isValidFileSize();
+      allow write: if false; // Denied - use Matrix or PixEdge
     }
-    
-    // User-generated content
+
     match /users/{userId}/{fileName} {
       allow read: if isAuthenticated();
-      allow write: if isOwner(userId) && isValidFileSize();
+      allow write: if false; // Denied - use Matrix or PixEdge
     }
-    
-    // Temporary uploads (for processing)
+
     match /tmp/{fileName} {
-      allow write: if isAuthenticated() && isValidFileSize();
+      allow write: if false; // Denied - use Matrix or PixEdge
       allow read: if false;
     }
   }

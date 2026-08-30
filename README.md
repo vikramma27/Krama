@@ -1,100 +1,237 @@
-# Krama - Privacy-First Encrypted Messaging App
+# Krama - Privacy-First Encrypted Messaging
 
-A modern, privacy-focused Android messaging application with end-to-end encryption, offline-first architecture, and a distinctive Material 3 design.
+A modern Android messaging application with end-to-end encryption, offline-first architecture, and zero server costs.
 
 ## Features
 
-- **End-to-End Encryption**: Built on Matrix protocol with SQLCipher for local storage
-- **Privacy-First Design**: App lock, biometric authentication, privacy shields, and FLAG_SECURE
-- **Offline-First**: Full functionality without internet, with automatic sync when online
-- **Modern UI**: Material 3 design with distinctive color palette and smooth animations
-- **Free & Open Source**: No server costs, no data harvesting, completely free to run
+- **End-to-End Encryption**: Matrix protocol with Olm/Megolm encryption
+- **Privacy-First Design**: App lock, biometric auth, privacy shields, FLAG_SECURE
+- **Offline-First**: Full functionality without internet, automatic sync
+- **Modern UI**: Material 3 design with distinctive purple/teal palette
+- **Free Forever**: $0/month operating cost
+
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              Krama System                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │                        Firebase (Auth & Metadata)                      │   │
+│   │   ┌──────────────┐  ┌──────────────┐  ┌───────────────────────┐  │   │
+│   │   │   Firebase   │  │   Cloud      │  │    Cloud Messaging    │  │   │
+│   │   │   Auth      │  │   Firestore  │  │    (Push Notifications)│  │   │
+│   │   └──────────────┘  └──────────────┘  └───────────────────────┘  │   │
+│   │          │                 │                      │                  │   │
+│   │          └─────────────────┴──────────────────────┘                 │   │
+│   │                            │                                        │   │
+│   └────────────────────────────┼────────────────────────────────────────┘   │
+│                                │                                             │
+│   ┌────────────────────────────┼────────────────────────────────────────┐   │
+│   │                            ▼                                         │   │
+│   │   ┌─────────────────────────────────────────────────────────────┐  │   │
+│   │   │                    Matrix.org (E2E Encrypted)               │  │   │
+│   │   │                                                              │  │   │
+│   │   │   ┌──────────────┐  ┌──────────────┐  ┌────────────────┐  │  │   │
+│   │   │   │   Messaging  │  │    Media     │  │   VoIP        │  │  │   │
+│   │   │   │   (E2E)     │  │   (<10MB)    │  │   Signaling   │  │  │   │
+│   │   │   └──────────────┘  └──────────────┘  └────────────────┘  │  │   │
+│   │   └─────────────────────────────────────────────────────────────┘  │   │
+│   │                            │                                         │   │
+│   └────────────────────────────┼────────────────────────────────────────┘   │
+│                                │                                              │
+│   ┌────────────────────────────┼────────────────────────────────────────┐   │
+│   │                            ▼                                         │   │
+│   │   ┌─────────────────────────────────────────────────────────────┐  │   │
+│   │   │                   PixEdge (Fallback Media)                   │  │   │
+│   │   │                                                              │  │   │
+│   │   │   ┌──────────────┐  ┌──────────────┐  ┌────────────────┐  │  │   │
+│   │   │   │  Next.js     │  │   Neon       │  │   Upstash     │  │  │   │
+│   │   │   │  (Vercel)   │  │  PostgreSQL  │  │   Redis       │  │  │   │
+│   │   │   └──────────────┘  └──────────────┘  └────────────────┘  │  │   │
+│   │   │                            │                              │  │   │
+│   │   │                   ┌────────▼────────┐                    │  │   │
+│   │   │                   │    Telegram     │                    │  │   │
+│   │   │                   │   (Storage)     │                    │  │   │
+│   │   │                   └─────────────────┘                    │  │   │
+│   │   └─────────────────────────────────────────────────────────────┘  │   │
+│   │                                                                       │   │
+│   │                        Krama Android App                              │   │
+│   │   ┌──────────────────────────────────────────────────────────────┐   │   │
+│   │   │  UI (Jetpack Compose) │ Domain │ Data (Room + SQLCipher)  │   │   │
+│   │   └──────────────────────────────────────────────────────────────┘   │   │
+│   │                                                                       │   │
+└───┼───────────────────────────────────────────────────────────────────────┘   │
+    │                                                                           │
+    └───────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Data Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              Media Upload Flow                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   User selects media                                                          │
+│          │                                                                   │
+│          ▼                                                                   │
+│   ┌─────────────────┐                                                       │
+│   │ Is file > 10MB? │                                                       │
+│   └────────┬────────┘                                                       │
+│            │                                                                  │
+│      YES   │   NO                                                            │
+│      ┌─────┴─────┐                                                          │
+│      ▼           ▼                                                           │
+│   ┌──────┐  ┌────────────────────────────────────────┐                       │
+│   │PixEdge│  │ Matrix Upload                          │                       │
+│   │Upload │  │ (E2E Encrypted)                       │                       │
+│   └──┬───┘  └─────────────────┬──────────────────────┘                       │
+│      │                        │                                               │
+│      │                        ▼                                               │
+│      │              ┌─────────────────┐                                     │
+│      │              │ Upload success? │                                     │
+│      │              └────────┬────────┘                                     │
+│      │                   YES │ │ NO                                         │
+│      │              ┌────────┘ └──┐                                        │
+│      │              ▼             ▼                                         │
+│      │         ┌────────┐    ┌─────────┐                                    │
+│      │         │ Done   │    │ PixEdge │                                    │
+│      │         └────────┘    │Fallback │                                    │
+│      │                        └────┬────┘                                    │
+│      └─────────────────────────────┼────────────────────────────────────────┘
+│                                    │                                          │
+│                                    ▼                                          │
+│                            Send message with URL                             │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
 
 ## Tech Stack
 
-- **Language**: Kotlin 1.9+
-- **UI Framework**: Jetpack Compose with Material 3
-- **Architecture**: Clean Architecture (Presentation / Domain / Data layers)
-- **Backend**: Firebase (Auth, Firestore, Cloud Messaging, Analytics) + Matrix SDK
-- **Local Storage**: Room Database with SQLCipher encryption
-- **Background Processing**: WorkManager
-- **Dependency Injection**: Hilt
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| **UI** | Jetpack Compose + Material 3 | Modern declarative UI |
+| **Language** | Kotlin 1.9+ | Android development |
+| **Architecture** | Clean Architecture | Separation of concerns |
+| **Local DB** | Room + SQLCipher | Encrypted local storage |
+| **Auth** | Firebase Auth | User authentication |
+| **Metadata** | Cloud Firestore | User profiles, settings |
+| **Messaging** | Matrix SDK | E2E encrypted messaging |
+| **Media** | Matrix + PixEdge | Encrypted media storage |
+| **Push** | FCM | Push notifications |
+| **DI** | Hilt | Dependency injection |
+| **Async** | Kotlin Coroutines + Flow | Reactive programming |
+
+---
+
+## Project Structure
+
+```
+app/src/main/java/com/example/krama/
+├── KramaApplication.kt       # App initialization
+├── MainActivity.kt           # Main entry point
+├── data/
+│   ├── local/              # Room + SQLCipher
+│   ├── remote/             # Firebase, Matrix, PixEdge
+│   └── repository/         # Repository implementations
+├── domain/
+│   ├── model/             # Domain models
+│   ├── repository/         # Repository interfaces
+│   └── engine/            # Business logic engines
+├── ui/
+│   ├── components/        # Reusable UI components
+│   ├── screens/           # Screen composables
+│   ├── theme/             # Material 3 theming
+│   └── viewmodel/         # ViewModels
+└── service/               # Background services
+```
+
+---
 
 ## Prerequisites
 
-Before building the app, you need to set up:
+### Firebase Setup
 
-1. **Firebase Project** (Already configured: `karmaapp-2bab2`)
-   - Download `google-services.json` and place it in `app/` directory
-   - See [FIREBASE_SETUP.md](./FIREBASE_SETUP.md) for complete setup instructions
-   - Enable authentication methods: Email/Password, Google Sign-in, Phone
-   - Configure Firestore database with security rules
+1. Download `google-services.json` from [Firebase Console](https://console.firebase.google.com/)
+2. Place it in `app/google-services.json`
+3. Enable authentication methods:
+   - Email/Password
+   - Google Sign-in
+   - Phone (optional)
 
-2. **Matrix Server** (Optional but recommended)
-   - Use a public Matrix server like [matrix.org](https://matrix.org/)
-   - Or host your own using [Synapse](https://github.com/matrix-org/synapse) or [Conduwuit](https://github.com/girlbossceo/conduwuit)
+### Matrix Server
 
-3. **Gemini API Key** (Optional)
-   - For AI features, get an API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
-   - Add to your local `.env` file or GitHub Secrets
+Uses [matrix.org](https://matrix.org/) by default. For self-hosting:
+
+```kotlin
+// In MatrixConfig
+val homeserverUrl = "https://your-matrix-server.com"
+```
+
+### PixEdge (Optional)
+
+For large file fallback (>10MB):
+
+1. Deploy PixEdge following [PIXEDGE_DEPLOYMENT.md](../PixEdge/PIXEDGE_DEPLOYMENT.md)
+2. Configure in `.env`:
+
+```bash
+PIXEDGE_API_URL=https://your-pixedge.vercel.app
+PIXEDGE_API_KEY=your_api_key
+```
+
+---
 
 ## Building
 
-### Local Development
+### Debug Build
 
-1. Clone the repository
-2. Place your `google-services.json` in `app/` directory
-3. Create a `.env` file with your configuration (see `.env.example`)
-4. Build the debug APK:
-   ```bash
-   ./gradlew assembleDebug
-   ```
+```bash
+./gradlew assembleDebug
+# APK: app/build/outputs/apk/debug/app-debug.apk
+```
 
-### GitHub Actions (Automatic Builds)
+### Release Build
 
-The repository includes CI/CD that automatically builds APKs on:
-- Push to `main`/`master` branches
+```bash
+./gradlew assembleRelease
+# APK: app/build/outputs/apk/release/app-release.apk
+```
+
+### GitHub Actions
+
+CI/CD automatically builds APKs on:
+- Push to `main`/`master`
 - Pull requests
-- Version tags (e.g., `v1.0.0`)
+- Version tags (`v1.0.0`)
 
-APKs are uploaded as build artifacts (30-day retention).
-Releases are created automatically when you push version tags.
+---
 
-**Note**: The CI build creates a placeholder `google-services.json` if not present, so builds succeed without the actual Firebase config. For production deployments, add `google-services.json` to GitHub Secrets.
+## Cost Analysis
 
-## Firebase Configuration
+### Monthly Operating Cost: **$0**
 
-### Quick Setup
+| Service | Free Tier | Usage |
+|---------|-----------|-------|
+| Firebase Auth | 10K MAU | ~15 users ✓ |
+| Cloud Firestore | 1GB / 50K reads/day | ~15 users ✓ |
+| Cloud Messaging | Unlimited | Push notifications ✓ |
+| Matrix (Public) | Free | Messaging ✓ |
+| PixEdge (Telegram) | Free | Large file storage ✓ |
+| GitHub Actions | 2000 min/month | CI/CD ✓ |
 
-1. **Download google-services.json**
-   - Firebase Console → Project Settings → Your apps → Download google-services.json
-   - Place in: `app/google-services.json`
+**One-time costs:**
+- Google Play Developer Account: $25
 
-2. **Enable Authentication**
-   - Authentication → Sign-in method
-   - Enable: Email/Password, Google, Phone
-
-3. **Create Firestore Database**
-   - Firestore → Create database (Production mode)
-   - Copy rules from `firestore.rules`
-   - Publish rules
-
-4. **Configure Storage (Optional)**
-   - Storage → Get started
-   - Copy rules from `storage.rules`
-   - Publish rules
-
-For detailed instructions, see [FIREBASE_SETUP.md](./FIREBASE_SETUP.md).
-
-### Firebase Services Used
-
-| Service | Purpose | Configuration |
-|---------|---------|---------------|
-| **Authentication** | User identity | Email/Password, Google, Phone |
-| **Firestore** | User profiles, messages | Rules in `firestore.rules` |
-| **Realtime Database** | Presence, typing | Included in google-services.json |
-| **Cloud Storage** | Media files | Rules in `storage.rules` |
-| **Cloud Messaging** | Push notifications | Auto-configured |
+---
 
 ## Configuration
 
@@ -103,116 +240,56 @@ For detailed instructions, see [FIREBASE_SETUP.md](./FIREBASE_SETUP.md).
 Create `app/.env` from `.env.example`:
 
 ```bash
-# Gemini AI API (optional)
-GEMINI_API_KEY=your_api_key_here
+# Gemini AI (optional)
+GEMINI_API_KEY=your_key
+
+# PixEdge (optional - for files >10MB)
+PIXEDGE_API_URL=https://your-pixedge.vercel.app
+PIXEDGE_API_KEY=your_api_key
 ```
 
-### Matrix Configuration
+### Firebase Services
 
-The app uses Matrix for E2E encrypted messaging. Configure in `MatrixConfig`:
+| Service | Purpose | Status |
+|---------|---------|--------|
+| Authentication | User identity | ✅ Active |
+| Firestore | Metadata storage | ✅ Active |
+| Cloud Messaging | Push notifications | ✅ Active |
+| Analytics | Usage tracking | ✅ Active |
+| Storage | **Deprecated** | ❌ Use Matrix/PixEdge |
 
-```kotlin
-// In your data layer
-val homeserverUrl = "https://matrix.org" // or your custom server
-```
+---
 
-## Project Structure
+## Security
 
-```
-app/src/main/java/com/example/
-├── KramaApplication.kt      # Application class with initialization
-├── MainActivity.kt          # Main activity with Compose UI
-├── data/                    # Data layer
-│   ├── local/             # Room database, SQLCipher
-│   ├── remote/            # Firebase, Matrix SDK
-│   └── repository/         # Repository implementations
-├── domain/                  # Business logic layer
-│   ├── model/             # Domain models
-│   ├── repository/         # Repository interfaces
-│   └── engine/            # Lifecycle, Network, Recovery engines
-├── ui/                      # Presentation layer
-│   ├── components/         # Reusable Compose components
-│   ├── screens/           # Screen composables
-│   ├── theme/             # Material 3 theme
-│   └── viewmodel/         # ViewModels
-└── service/                # Background services
-```
+### End-to-End Encryption
 
-## Backend Architecture
+- Matrix Olm/Megolm protocol
+- Identity keys for key verification
+- Forward secrecy via session keys
 
-The app uses a hybrid backend approach for zero-cost operation:
+### Local Storage
 
-1. **Firebase** (Free Tier)
-   - Authentication
-   - Cloud Firestore for metadata
-   - Cloud Messaging for push notifications
-   - Analytics
+- SQLCipher AES-256 encryption
+- Android Keystore for key management
+- Encrypted SharedPreferences
 
-2. **Matrix** (Public Server / Self-Hosted)
-   - End-to-end encrypted messaging
-   - VoIP signaling
-   - Room management
+### Privacy Features
 
-3. **Local Storage**
-   - Room + SQLCipher for encrypted local data
-   - SharedPreferences (encrypted)
-   - File-based storage for media
+- App lock (PIN/Biometric)
+- FLAG_SECURE for screenshots
+- Privacy indicators
+- Message auto-destruct
 
-This architecture ensures:
-- No server costs (using free tiers)
-- Full offline functionality
-- End-to-end encryption
-- No vendor lock-in
-
-## Cost Analysis
-
-For ~15 users:
-- Firebase Free Tier: Sufficient (100GB Firestore, 1GB Storage, etc.)
-- Matrix Public Server: Free
-- GitHub Actions: Free (2000 min/month)
-- Google Play: $25 one-time fee
-
-**Total Monthly Cost: $0**
-
-## Deployment
-
-### Debug Build
-```bash
-./gradlew assembleDebug
-# APK: app/build/outputs/apk/debug/app-debug.apk
-```
-
-### Release Build
-```bash
-./gradlew assembleRelease
-# APK: app/build/outputs/apk/release/app-release.apk
-```
-
-For release builds, set these environment variables:
-```bash
-export KEYSTORE_PATH=/path/to/keystore.jks
-export STORE_PASSWORD=your_store_password
-export KEY_PASSWORD=your_key_password
-```
-
-### Google Play
-
-1. Create a Google Play Developer account ($25 one-time)
-2. Upload the release APK to Play Console
-3. Configure app signing (Google can manage keys for free)
-4. Submit for review
+---
 
 ## License
 
-This project is licensed under the MIT License - see LICENSE file for details.
+MIT License - see LICENSE file for details.
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+---
 
 ## Support
 
-For issues and questions, please open a GitHub issue.
+For issues and questions:
+- [GitHub Issues](https://github.com/org-calm-moon-46812842/Krama/issues)

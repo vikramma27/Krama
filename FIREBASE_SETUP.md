@@ -125,11 +125,19 @@ Firestore will prompt you to create indexes when needed. To create manually:
 
 ---
 
-## Step 4: Configure Cloud Storage (Optional)
+## Step 4: Firebase Storage (DEPRECATED)
 
-If using Firebase Storage for media:
+### ⚠️ Important: Firebase Storage is No Longer Used
 
-### 4.1 Enable Firebase Storage
+Media files are now stored via:
+- **Matrix media repository** (primary) - E2E encrypted
+- **PixEdge via Telegram** (fallback) - for files >10MB
+
+You can skip this step unless you need Firebase Storage for avatars/thumbnails.
+
+### 4.1 Enable Firebase Storage (Optional)
+
+If you still want Firebase Storage for user avatars:
 
 1. Firebase Console → **Storage** → **Get started**
 2. Select "Start in production mode"
@@ -142,6 +150,8 @@ If using Firebase Storage for media:
 2. Copy the contents of `storage.rules` from this project
 3. Paste into the rules editor
 4. Click "Publish"
+
+Note: The rules are configured to deny all writes to `/conversations/`, `/users/`, and `/tmp/` paths since these now use Matrix or PixEdge.
 
 ---
 
@@ -196,7 +206,7 @@ firebase init emulators
 Select:
 - ✅ Authentication Emulator
 - ✅ Firestore Emulator
-- ✅ Storage Emulator (optional)
+- ⬜ Storage Emulator (optional - not needed)
 
 ### 7.3 Connect App to Emulators
 
@@ -229,10 +239,11 @@ After setup, verify your configuration:
 1. Create a test user
 2. Check if user profile is created in Firestore Console → Database
 
-### Check Storage (if configured)
+### Check Media Upload (Matrix/PixEdge)
 
-1. Upload a test file
-2. Verify it appears in Storage Console
+1. Upload a test image
+2. Verify it appears in Matrix media repository or PixEdge
+3. For large files (>10MB), verify PixEdge fallback works
 
 ---
 
@@ -243,11 +254,12 @@ Before deploying to production:
 - [ ] **google-services.json** is properly configured
 - [ ] All authentication methods tested
 - [ ] Firestore security rules published
-- [ ] Storage rules published (if using)
+- [ ] Firebase Storage rules published (if using avatars)
 - [ ] SHA-1 fingerprints added for release builds
 - [ ] Firebase Console shows no warnings
 - [ ] Tested on both debug and release builds
 - [ ] Backup configuration tested (if enabled)
+- [ ] PixEdge deployed and configured (for large file fallback)
 
 ---
 
@@ -281,14 +293,22 @@ Before deploying to production:
 
 ## Firebase Services Used in Krama
 
-| Service | Purpose | Free Tier Limits |
-|---------|---------|-----------------|
-| **Authentication** | User identity | 10K MAU, 10K SMS/month (phone) |
-| **Firestore** | User profiles, messages | 1GB storage, 50K reads/day |
-| **Realtime Database** | Online presence, typing | 100 simultaneous connections |
-| **Cloud Storage** | Media files | 5GB storage |
-| **Cloud Messaging** | Push notifications | Unlimited (no free tier) |
-| **Analytics** | Usage analytics | Unlimited |
+| Service | Purpose | Free Tier Limits | Status |
+|---------|---------|-----------------|--------|
+| **Authentication** | User identity | 10K MAU, 10K SMS/month (phone) | ✅ Active |
+| **Firestore** | User profiles, messages | 1GB storage, 50K reads/day | ✅ Active |
+| **Realtime Database** | Online presence, typing | 100 simultaneous connections | ✅ Active |
+| **Cloud Storage** | Media files | 5GB storage | ⚠️ Deprecated |
+| **Cloud Messaging** | Push notifications | Unlimited (no free tier) | ✅ Active |
+| **Analytics** | Usage analytics | Unlimited | ✅ Active |
+
+### Media Storage Migration
+
+Media storage has been migrated from Firebase Storage to:
+- **Matrix media repository** (primary) - E2E encrypted, free
+- **PixEdge via Telegram** (fallback) - for files >10MB
+
+This reduces Firebase Storage usage to near zero and provides E2E encryption for media.
 
 ---
 
@@ -297,7 +317,7 @@ Before deploying to production:
 1. **Use Firestore bundles** for frequent queries
 2. **Enable offline persistence** to reduce reads
 3. **Use pagination** for message history
-4. **Delete old media** from Cloud Storage
+4. **Delete old media** from local cache
 5. **Monitor usage** in Firebase Console
 6. **Set up billing alerts** to avoid surprises
 

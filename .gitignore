@@ -1,19 +1,51 @@
+# Build outputs
+build/
+.gradle/
+.cxx/
+captures/
+
+# IDE
+.idea/
 *.iml
-.gradle
-.kotlin
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+*.iws
+*.ipr
+
+# Android
 local.properties
+*.keystore
+!debug.keystore
+
+# Environment
 .env
-debug.keystore
+.env.*
+!.env.example
+
+# Firebase
 google-services.json
+
+# Gradle
+.gradle/
+gradle/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Kotlin
+.kotlin/
+
+# External Native Build
+.externalNativeBuild/
+
+# Debug
+debug.keystore
+
+# Crashlytics
+crashlytics.properties
+crashlytics-build.properties
+
+# Locales
+l10n/
+
+# Testing
+instrumented/
